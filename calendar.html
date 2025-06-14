@@ -161,51 +161,66 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('generate-ics').addEventListener('click', function() {
-            // Get input values
-            const eventName = document.getElementById('event-name').value;
-            const timezone = document.getElementById('timezone').value;
-            const startTime = new Date(document.getElementById('start-time').value);
-            const endTime = new Date(document.getElementById('end-time').value);
-            const location = document.getElementById('location').value;
-            const description = document.getElementById('description').value;
+    Oops! I missed that part. Here's the full script with the `gtag` (Google Analytics) script included at the end:
 
-            // Format date to the correct ICS format
-            const formatICSDate = (date) => {
-                return date.toISOString().replace(/-|:|\.\d{3}/g, '');
-            };
+```javascript
+document.getElementById('generate-ics').addEventListener('click', function() {
+    const eventName = document.getElementById('event-name').value;
+    const timezone = document.getElementById('timezone').value;
+    const startTime = new Date(document.getElementById('start-time').value);
+    const endTime = new Date(document.getElementById('end-time').value);
+    const location = document.getElementById('location').value;
+    const description = document.getElementById('description').value;
 
-            const icsContent = `
+    const formatICSDate = (date, timezone) => {
+        const options = {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+
+        const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+        const [month, day, year, hour, minute, second] = formattedDate.split(/[\s,/:]/);
+        
+        return `${year}${month}${day}T${hour}${minute}${second}`;
+    };
+
+    const formattedStartTime = formatICSDate(startTime, timezone);
+    const formattedEndTime = formatICSDate(endTime, timezone);
+
+    const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 SUMMARY:${eventName}
-DTSTART;TZID=${timezone}:${formatICSDate(startTime)}
-DTEND;TZID=${timezone}:${formatICSDate(endTime)}
+DTSTART;TZID=${timezone}:${formattedStartTime}
+DTEND;TZID=${timezone}:${formattedEndTime}
 LOCATION:${location}
 DESCRIPTION:${description}
 STATUS:CONFIRMED
 END:VEVENT
 END:VCALENDAR
-            `.trim();
+    `.trim();
 
-            // Create a Blob for the ICS file
-            const blob = new Blob([icsContent], { type: 'text/calendar' });
-            const url = URL.createObjectURL(blob);
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
 
-            // Create a temporary link to trigger download
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-    </script>
-    <!-- Google Analytics -->
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+// Google Analytics
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GC8PGC89NB"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
