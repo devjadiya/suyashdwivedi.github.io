@@ -161,9 +161,7 @@
         </div>
     </div>
 
-    Oops! I missed that part. Here's the full script with the `gtag` (Google Analytics) script included at the end:
-
-```javascript
+    <script>
 document.getElementById('generate-ics').addEventListener('click', function() {
     const eventName = document.getElementById('event-name').value;
     const timezone = document.getElementById('timezone').value;
@@ -219,7 +217,7 @@ END:VCALENDAR
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 });
-
+</script>
 // Google Analytics
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GC8PGC89NB"></script>
 <script>
