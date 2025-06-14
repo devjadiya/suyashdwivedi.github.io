@@ -160,58 +160,81 @@
             <p>License: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a></p>
         </div>
     </div>
+    
+<script>
+    document.getElementById('generate-ics').addEventListener('click', function() {
+        const eventName = document.getElementById('event-name').value;
+        const timezone = document.getElementById('timezone').value;
+        const startTime = new Date(document.getElementById('start-time').value);
+        const endTime = new Date(document.getElementById('end-time').value);
+        const location = document.getElementById('location').value;
+        const description = document.getElementById('description').value;
 
-    <script>
-        document.getElementById('generate-ics').addEventListener('click', function() {
-            // Get input values
-            const eventName = document.getElementById('event-name').value;
-            const timezone = document.getElementById('timezone').value;
-            const startTime = new Date(document.getElementById('start-time').value);
-            const endTime = new Date(document.getElementById('end-time').value);
-            const location = document.getElementById('location').value;
-            const description = document.getElementById('description').value;
+        const formatICSDate = (date, timezone) => {
+            const dateTimeFormat = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            return dateTimeFormat.formatToParts(date).reduce((acc, part) => {
+                if (part.type === 'year') acc += part.value;
+                else if (part.type === 'month') acc += part.value.padStart(2, '0');
+                else if (part.type === 'day') acc += part.value.padStart(2, '0');
+                else if (part.type === 'hour') acc += part.value.padStart(2, '0');
+                else if (part.type === 'minute') acc += part.value.padStart(2, '0');
+                else if (part.type === 'second') acc += part.value.padStart(2, '0');
+                return acc;
+            }, '');
+        };
 
-            // Format date to the correct ICS format
-            const formatICSDate = (date) => {
-                return date.toISOString().replace(/-|:|\.\d{3}/g, '');
-            };
+        const icsStartDate = formatICSDate(startTime, timezone);
+        const icsEndDate = formatICSDate(endTime, timezone);
 
-            const icsContent = `
+        const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 SUMMARY:${eventName}
-DTSTART;TZID=${timezone}:${formatICSDate(startTime)}
-DTEND;TZID=${timezone}:${formatICSDate(endTime)}
+DTSTART;TZID=${timezone}:${icsStartDate}
+DTEND;TZID=${timezone}:${icsEndDate}
 LOCATION:${location}
 DESCRIPTION:${description}
 STATUS:CONFIRMED
 END:VEVENT
 END:VCALENDAR
-            `.trim();
+        `.trim();
 
-            // Create a Blob for the ICS file
-            const blob = new Blob([icsContent], { type: 'text/calendar' });
-            const url = URL.createObjectURL(blob);
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
 
-            // Create a temporary link to trigger download
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-    </script>
-    <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GC8PGC89NB"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-GC8PGC89NB');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    (function() {
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-GC8PGC89NB';
+        document.head.appendChild(script);
+        
+        script.onload = function() {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-GC8PGC89NB');
+        };
+    })();
 </script>
 </body>
 </html>
